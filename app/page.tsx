@@ -1,69 +1,62 @@
-import Image from "next/image";
+import Link from "next/link";
+import { PageIntro, SectionTitle, ServiceCard } from "./_components/site";
+
+const categories = ["Монтаж", "Съёмка", "Анимация", "Реклама", "Цветокоррекция"];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main>
+      <section className="hero page-shell">
+        <div className="hero-copy">
+          <p className="eyebrow"><span className="live-dot" /> МАРКЕТПЛЕЙС ВИДЕОУСЛУГ</p>
+          <h1>Идеи заслуживают<br />быть <span>увиденными.</span></h1>
+          <p className="hero-description">Находите видеоспециалистов, которые превратят вашу задумку в историю. Или делитесь своим талантом с миром.</p>
+          <div className="hero-actions">
+            <Link className="button button-lime" href="/catalog">Найти специалиста <span aria-hidden="true">↗</span></Link>
+            <Link className="button button-outline" href="/register">Я — автор</Link>
+          </div>
+          <div className="hero-proof"><div className="avatar-stack"><span className="avatar">A</span><span className="avatar avatar-peach">M</span><span className="avatar avatar-blue">K</span></div><p><strong>Уже 1 200+</strong><br />креаторов на платформе</p></div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="hero-art" aria-label="Подборка видеоработ">
+          <div className="hero-art-top"><span>ИСТОРИИ В ДВИЖЕНИИ</span><span>№ 001 — 024</span></div>
+          <div className="hero-poster poster-large"><span className="poster-sun" /><span className="poster-type">ДРУГОЙ<br />ВЗГЛЯД</span><span className="poster-meta">Короткий метр · 02:48</span></div>
+          <div className="hero-poster poster-small"><span className="poster-stripe" /><span className="poster-label">MAKE<br />IT MOVE</span></div>
+          <div className="floating-note"><span className="note-star">✳</span><span>Твоя идея.<br /><strong>Новый кадр.</strong></span></div>
+          <span className="hero-index">VM / 2025</span>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="category-strip page-shell">
+        <span className="strip-label">ЧТО ВЫ ИЩЕТЕ?</span>
+        {categories.map((category, index) => <Link href="/catalog" className="category-pill" key={category}><span>0{index + 1}</span>{category}<span aria-hidden="true">↗</span></Link>)}
+      </section>
+
+      <section className="content-section page-shell">
+        <SectionTitle title="Работы, которые цепляют" detail="Свежие идеи от авторов VideoMarket" href="/catalog" />
+        <div className="service-grid">
+          <ServiceCard title="Монтаж, который держит внимание" category="ВИДЕОМОНТАЖ" price="15 000" seller="Алина К." theme="mint" />
+          <ServiceCard title="Сниму историю вашего бренда" category="СЪЁМКА" price="28 000" seller="Марат С." theme="peach" />
+          <ServiceCard title="Оживлю ваш проект в 3D" category="АНИМАЦИЯ" price="12 000" seller="Кира Н." theme="blue" />
+        </div>
+      </section>
+
+      <section className="creator-band">
+        <div className="page-shell creator-band-inner">
+          <div><p className="eyebrow">ДЛЯ АВТОРОВ</p><h2>Твоя работа.<br /><span>Твоя аудитория.</span></h2></div>
+          <p>Покажи портфолио, найди клиентов и занимайся тем, что любишь. Всё остальное — в одном месте.</p>
+          <Link className="button button-lime" href="/register">Открыть профиль <span aria-hidden="true">↗</span></Link>
+          <span className="band-mark" aria-hidden="true">V</span>
+        </div>
+      </section>
+
+      <section className="content-section page-shell bottom-section">
+        <PageIntro eyebrow="ПРОСТО НАЧАТЬ" title="От идеи до готового видео" description="Понятный путь для обеих сторон — от первого сообщения до финального кадра." />
+        <div className="steps-grid">
+          <article><span>01</span><h3>Найдите своего автора</h3><p>Смотрите работы, портфолио и услуги в каталоге.</p></article>
+          <article><span>02</span><h3>Обсудите проект</h3><p>Напишите исполнителю и договоритесь о деталях.</p></article>
+          <article><span>03</span><h3>Получите результат</h3><p>Следите за этапами заказа и примите готовую работу.</p></article>
+        </div>
+      </section>
+    </main>
   );
 }
