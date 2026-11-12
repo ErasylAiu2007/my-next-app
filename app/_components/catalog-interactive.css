@@ -1,0 +1,417 @@
+.catalogControls {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(125px, 1fr)) auto;
+  align-items: end;
+  gap: 12px;
+  margin: 22px 0 34px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fcfcf9;
+}
+
+.catalogField {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+  color: #555950;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.catalogField input,
+.catalogField select,
+.catalogField textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 11px;
+  border: 1px solid #dfe1d9;
+  border-radius: 5px;
+  outline: none;
+  background: #fff;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 400;
+  transition: border-color .18s, box-shadow .18s;
+}
+
+.catalogField textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.catalogField input:focus,
+.catalogField select:focus,
+.catalogField textarea:focus {
+  border-color: #9caf60;
+  box-shadow: 0 0 0 3px #d7f36a38;
+}
+
+.catalogReset {
+  white-space: nowrap;
+}
+
+.catalogResults {
+  margin-top: 6px;
+}
+
+.catalogStatus,
+.catalogError {
+  padding: 14px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.catalogStatus {
+  background: #eef1e6;
+  color: #687051;
+}
+
+.catalogError {
+  border: 1px solid #f0c7bf;
+  background: #fff4f1;
+  color: #873a2a;
+}
+
+.catalogEmpty {
+  display: flex;
+  min-height: 170px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  border: 1px dashed #d3d5cc;
+  border-radius: 8px;
+  background: #fcfcf9;
+  text-align: center;
+}
+
+.catalogEmpty strong {
+  font-size: 16px;
+}
+
+.catalogEmpty p {
+  margin: 9px 0 17px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.serviceCardImage {
+  z-index: 0;
+  object-fit: cover;
+  transition: transform .25s;
+}
+
+.serviceArtWithImage::before,
+.serviceArtWithImage::after {
+  display: none;
+}
+
+.service-card:hover .serviceCardImage {
+  transform: scale(1.035);
+}
+
+.serviceMediaBadge {
+  position: absolute;
+  z-index: 2;
+  bottom: 14px;
+  left: 14px;
+  padding: 7px 9px;
+  border-radius: 4px;
+  background: #fffef0e8;
+  color: #42463c;
+  font-size: 9px;
+  font-weight: 650;
+}
+
+.sellerDashboard {
+  padding-bottom: 86px;
+}
+
+.sellerStats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 32px;
+}
+
+.sellerNotice {
+  margin: 12px 0;
+  padding: 12px 15px;
+  border: 1px solid #d5e5ad;
+  border-radius: 5px;
+  background: #f0f7df;
+  color: #51651e;
+  font-size: 12px;
+}
+
+.sellerManagement {
+  display: grid;
+  grid-template-columns: minmax(220px, .75fr) minmax(0, 1.5fr);
+  gap: 30px;
+  margin-top: 30px;
+  padding: 25px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fcfcf9;
+}
+
+.sellerManagement h2 {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 560;
+  letter-spacing: -.7px;
+}
+
+.sellerManagement .intro-copy {
+  font-size: 12px;
+}
+
+.sellerServiceForm {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.sellerDescriptionField {
+  grid-column: 1 / -1;
+}
+
+.sellerFormActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  grid-column: 1 / -1;
+  margin-top: 3px;
+}
+
+.sellerListSection,
+.sellerOtherLinks,
+.sellerPortfolio {
+  margin-top: 54px;
+}
+
+.sellerServiceList {
+  display: grid;
+  gap: 11px;
+}
+
+.sellerServiceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 19px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fcfcf9;
+}
+
+.sellerServiceCopy {
+  min-width: 0;
+}
+
+.sellerServiceCopy h3 {
+  margin: 9px 0 6px;
+  font-size: 15px;
+}
+
+.sellerServiceCopy h3 a:hover,
+.portfolioItem p a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sellerServiceCopy > p {
+  margin: 5px 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.sellerServiceDescription {
+  max-width: 720px;
+}
+
+.serviceStatus {
+  display: inline-block;
+  padding: 5px 7px;
+  border-radius: 3px;
+  background: #f1eee1;
+  color: #726641;
+  font-size: 9px;
+  font-weight: 650;
+}
+
+.isPublished {
+  background: #eaf2d8;
+  color: #5b7024;
+}
+
+.sellerMediaNote {
+  display: inline-block;
+  margin-top: 5px;
+  color: #6f7d42;
+  font-size: 10px;
+}
+
+.sellerServiceActions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.buttonDanger {
+  border: 1px solid #e8c9c1;
+  background: #fff8f6;
+  color: #8a4334;
+  cursor: pointer;
+}
+
+.buttonDanger:hover {
+  background: #fce9e4;
+}
+
+.sellerOtherLinks {
+  padding-top: 7px;
+}
+
+.portfolioGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.portfolioItem {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fcfcf9;
+}
+
+.portfolioItem img,
+.portfolioItem video {
+  display: block;
+  width: 100%;
+  max-height: 260px;
+  aspect-ratio: 16 / 10;
+  background: #242820;
+  object-fit: cover;
+}
+
+.portfolioItem p {
+  margin: 0;
+  padding: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.detailArtWithImage::before,
+.detailArtWithImage::after {
+  display: none;
+}
+
+.detailArtWithImage img {
+  object-fit: cover;
+}
+
+.detailArtLabel {
+  position: absolute;
+  z-index: 1;
+  bottom: 25px;
+  left: 30px;
+  color: white;
+  font-size: 21px;
+  font-weight: 750;
+  letter-spacing: 1px;
+}
+
+.serviceVideoSection h2 {
+  margin: 0 0 14px;
+  font-size: 20px;
+}
+
+.serviceDetailVideo {
+  display: block;
+  width: 100%;
+  max-height: 480px;
+  margin-bottom: 12px;
+  border-radius: 7px;
+  background: #242820;
+}
+
+.serviceBackLink {
+  display: block;
+  margin-top: 18px;
+  color: #60654f;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.serviceBackLink:hover {
+  color: #69831e;
+}
+
+@media (max-width: 1050px) {
+  .catalogControls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .catalogSearch {
+    grid-column: span 2;
+  }
+
+  .sellerManagement {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .catalogControls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 13px;
+  }
+
+  .catalogSearch {
+    grid-column: 1 / -1;
+  }
+
+  .catalogReset {
+    width: 100%;
+    grid-column: 1 / -1;
+  }
+
+  .sellerStats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sellerManagement {
+    gap: 20px;
+    padding: 17px;
+  }
+
+  .sellerServiceForm,
+  .portfolioGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sellerDescriptionField,
+  .sellerFormActions {
+    grid-column: auto;
+  }
+
+  .sellerServiceRow {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  .sellerServiceActions {
+    width: 100%;
+  }
+
+  .sellerServiceActions .button {
+    flex: 1;
+  }
+}

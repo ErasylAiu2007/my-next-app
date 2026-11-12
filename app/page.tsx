@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { PageIntro, SectionTitle, ServiceCard } from "./_components/site";
+import { FeaturedServices } from "./_components/catalog-interactive";
+import { PageIntro, SectionTitle } from "./_components/site";
 
 const categories = ["Монтаж", "Съёмка", "Анимация", "Реклама", "Цветокоррекция"];
 
@@ -33,11 +34,7 @@ export default function Home() {
 
       <section className="content-section page-shell">
         <SectionTitle title="Работы, которые цепляют" detail="Свежие идеи от авторов VideoMarket" href="/catalog" />
-        <div className="service-grid">
-          <ServiceCard title="Монтаж, который держит внимание" category="ВИДЕОМОНТАЖ" price="15 000" seller="Алина К." theme="mint" />
-          <ServiceCard title="Сниму историю вашего бренда" category="СЪЁМКА" price="28 000" seller="Марат С." theme="peach" />
-          <ServiceCard title="Оживлю ваш проект в 3D" category="АНИМАЦИЯ" price="12 000" seller="Кира Н." theme="blue" />
-        </div>
+        <FeaturedServices />
       </section>
 
       <section className="creator-band">
