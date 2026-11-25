@@ -20,6 +20,9 @@ export type Service = {
   videoUrl: string;
   status: ServiceStatus;
   createdAt: string;
+  sellerName?: string;
+  sellerRating?: number;
+  sellerReviewCount?: number;
 };
 
 export type NewService = Omit<Service, "id" | "createdAt">;

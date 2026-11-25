@@ -1,32 +1,61 @@
+import { Suspense } from "react";
 import Link from "next/link";
-import { PageIntro } from "../../_components/site";
+import { notFound } from "next/navigation";
+import { OrderActions } from "../../_components/order-actions";
+import { requireUser } from "../../../lib/auth";
+import { db } from "../../../lib/db";
 
-const stages = [
-  ["Условия согласованы", "Покупатель и продавец подтвердили описание, цену и сроки."],
-  ["Оплата заказа", "Средства удерживаются платёжным провайдером до завершения сделки."],
-  ["Работа выполняется", "Продавец готовит материал и передаёт его покупателю."],
-  ["Проверка и завершение", "Покупатель принимает результат, модератор проверяет условия."],
-];
+const statusNames: Record<string, string> = {
+  pending: "Ожидает подтверждения",
+  accepted: "Принят продавцом",
+  in_progress: "В работе",
+  completed: "Завершён",
+  cancelled: "Отменён",
+};
 
-export default function OrderDetailPage() {
-  return (
-    <main className="page-shell standard-page">
-      <PageIntro eyebrow="ЗАКАЗ VM-024" title="Монтаж ролика для запуска продукта" description="Страница заказа: состав сделки, участники, условия и последовательность этапов." action={<Link className="button button-outline" href="/chats/demo">Чат сделки <span aria-hidden="true">↗</span></Link>} />
-      <div className="service-detail">
-        <section className="detail-panel">
-          <p className="eyebrow">ТЕКУЩИЙ СТАТУС</p><span className="status">В работе</span>
-          <h2 style={{ marginTop: 20 }}>Условия заказа</h2>
-          <p>Короткий проморолик до 60 секунд. В стоимость входят монтаж, базовая цветокоррекция и один раунд правок.</p>
-          <div className="profile-meta"><span>Исполнитель: Алина К.</span><span>Срок: 5 дней</span></div>
-          <div className="detail-price">15 000 ₽</div>
-          <p>Файлы заказа доступны только участникам сделки в готовой системе.</p>
-        </section>
-        <section className="detail-panel">
-          <p className="eyebrow">ЭТАПЫ СДЕЛКИ</p>
-          <div className="detail-timeline">{stages.map(([title, description]) => <div className="timeline-step" key={title}><span className="timeline-dot" /><div><strong>{title}</strong><p>{description}</p></div></div>)}</div>
-        </section>
-      </div>
-      <p className="prototype-note"><span aria-hidden="true">✳</span> Оплата, передача материалов, подтверждения и споры не реализованы в этом макете.</p>
-    </main>
-  );
+async function OrderContent({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const user = await requireUser();
+  const order = await db.order.findUnique({
+    where: { id },
+    include: {
+      buyer: { select: { id: true, name: true, email: true } },
+      seller: { select: { id: true, name: true, email: true } },
+    },
+  });
+  if (!order || (order.buyerId !== user.id && order.sellerId !== user.id && user.role !== "admin")) notFound();
+
+  const stages = [
+    ["Заказ создан", new Date(order.createdAt).toLocaleString("ru-RU")],
+    ["Заказ принят", order.status === "pending" ? "Ожидает подтверждения продавцом" : order.status === "cancelled" ? "Заказ отменён" : "Этап подтверждён"],
+    ["Выполнение", order.status === "in_progress" || order.status === "completed" ? "Работа выполняется или завершена" : "Ожидает начала работы"],
+    ["Завершение", order.status === "completed" ? "Покупатель подтвердил выполнение" : "Ожидает завершения сделки"],
+  ];
+
+  return <main className="page-shell standard-page">
+    <div className="page-intro">
+      <div><p className="eyebrow">ЗАКАЗ · {order.id}</p><h1>{order.serviceTitle}</h1><p className="intro-copy">Создан {new Date(order.createdAt).toLocaleString("ru-RU")}</p></div>
+      <Link className="button button-outline" href="/orders">← Все заказы</Link>
+    </div>
+    <div className="service-detail">
+      <section className="detail-panel">
+        <p className="eyebrow">ТЕКУЩИЙ СТАТУС</p>
+        <span className={`status ${order.status === "pending" ? "pending" : order.status === "cancelled" ? "review" : ""}`}>{statusNames[order.status] ?? order.status}</span>
+        <h2 style={{ marginTop: 20 }}>Условия заказа</h2>
+        <div className="profile-meta"><span>Покупатель: {order.buyer.name} ({order.buyer.email})</span><span>Продавец: {order.seller.name} ({order.seller.email})</span></div>
+        <div className="detail-price">{new Intl.NumberFormat("ru-KZ").format(order.price)} ₸</div>
+        <p>Создан: {new Date(order.createdAt).toLocaleString("ru-RU")}</p>
+        <p>Последнее изменение: {new Date(order.updatedAt).toLocaleString("ru-RU")}</p>
+        <OrderActions id={order.id} role={user.role} status={order.status} />
+      </section>
+      <section className="detail-panel">
+        <p className="eyebrow">ЭТАПЫ СДЕЛКИ</p>
+        <div className="detail-timeline">{stages.map(([title, description]) => <div className="timeline-step" key={title}><span className="timeline-dot" /><div><strong>{title}</strong><p>{description}</p></div></div>)}</div>
+      </section>
+    </div>
+  </main>;
+}
+
+export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  return <Suspense fallback={<main className="page-shell standard-page"><p>Загружаем заказ…</p></main>}><OrderContent params={params} /></Suspense>;
 }

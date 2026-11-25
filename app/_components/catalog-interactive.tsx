@@ -2,22 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   CATALOG_CATEGORIES,
-  CATALOG_CHANGE_EVENT,
-  createService,
-  deleteService,
-  getServices,
-  updateService,
-  type NewService,
   type Service,
   type ServiceCategory,
 } from "../../lib/catalog-storage";
 import "./catalog-interactive.css";
 import { PageIntro, SectionTitle } from "./site";
+import { ReportButton } from "./report-button";
+import { CreateOrderButton } from "./order-actions";
+import { StartChatButton } from "./chat-ui";
+import { SellerRating } from "./seller-rating";
 
-const CURRENT_SELLER_ID = "demo";
 const styles = {
   buttonDanger: "buttonDanger",
   catalogControls: "catalogControls",
@@ -92,28 +90,27 @@ function useCatalogServices(): StoreState {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const loadServices = () => {
+    let active = true;
+    const loadServices = async () => {
       try {
-        setServices(getServices());
-        setError("");
+        const response = await fetch("/api/services");
+        const data = await response.json() as Service[] | { error?: string };
+        if (!response.ok || !Array.isArray(data)) throw new Error("error" in data ? data.error : "Не удалось загрузить каталог услуг.");
+        if (active) {
+          setServices(data);
+          setError("");
+        }
       } catch (loadError) {
-        setServices([]);
-        setError(loadError instanceof Error ? loadError.message : "Не удалось загрузить каталог услуг.");
+        if (active) {
+          setServices([]);
+          setError(loadError instanceof Error ? loadError.message : "Не удалось загрузить каталог услуг.");
+        }
       }
     };
 
-    const timeoutId = window.setTimeout(loadServices, 0);
-    const onCatalogChange = () => loadServices();
-    const onStorage = (event: StorageEvent) => {
-      if (event.key === "videomarket-services") loadServices();
-    };
-
-    window.addEventListener(CATALOG_CHANGE_EVENT, onCatalogChange);
-    window.addEventListener("storage", onStorage);
+    void loadServices();
     return () => {
-      window.clearTimeout(timeoutId);
-      window.removeEventListener(CATALOG_CHANGE_EVENT, onCatalogChange);
-      window.removeEventListener("storage", onStorage);
+      active = false;
     };
   }, []);
 
@@ -138,7 +135,7 @@ function isWebUrl(value: string): boolean {
 }
 
 function ServiceCardView({ service }: { service: Service }) {
-  const sellerName = getSellerName(service.sellerId);
+  const sellerName = service.sellerName ?? getSellerName(service.sellerId);
   const imageIsWebUrl = service.imageUrl !== "" && isWebUrl(service.imageUrl);
   const artTheme = service.category === "Съёмка" ? "peach" : service.category === "Анимация" ? "blue" : "mint";
 
@@ -158,7 +155,8 @@ function ServiceCardView({ service }: { service: Service }) {
           <span className="avatar avatar-small">{sellerName.slice(0, 1)}</span>{sellerName}<span className="verified">✓</span>
         </Link>
         <Link className="service-name" href={`/service/${service.id}`}>{service.title}</Link>
-        <div className="service-bottom"><span>от {formatPrice(service.price)}</span><span className="rating">{service.category}</span></div>
+        <div className="service-bottom"><span>от {formatPrice(service.price)}</span><SellerRating sellerId={service.sellerId} average={service.sellerRating} count={service.sellerReviewCount} compact /></div>
+        <ReportButton targetType="service" targetId={service.id} />
       </div>
     </article>
   );
@@ -358,13 +356,28 @@ function ServiceForm({
 }
 
 export function SellerDashboard() {
+  const router = useRouter();
   const { services, error } = useCatalogServices();
+  const [sellerId, setSellerId] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<ServiceDraft>(EMPTY_DRAFT);
   const [notice, setNotice] = useState("");
   const [actionError, setActionError] = useState("");
 
-  const ownServices = services?.filter((service) => service.sellerId === CURRENT_SELLER_ID) ?? [];
+  useEffect(() => {
+    fetch("/api/auth/me").then(async (response) => {
+      const data = await response.json() as { user?: { id: string; role: string } };
+      if (!data.user) {
+        router.push("/login?next=%2Fseller");
+      } else if (data.user.role !== "seller") {
+        setActionError("Раздел доступен только продавцам.");
+      } else {
+        setSellerId(data.user.id);
+      }
+    }).catch(() => setActionError("Не удалось проверить доступ к кабинету."));
+  }, [router]);
+
+  const ownServices = services?.filter((service) => service.sellerId === sellerId) ?? [];
   const publishedServices = ownServices.filter((service) => service.status === "published");
 
   const updateDraft = (field: keyof ServiceDraft, value: string) => {
@@ -392,7 +405,7 @@ export function SellerDashboard() {
     setActionError("");
   };
 
-  const submitService = (event: FormEvent<HTMLFormElement>) => {
+  const submitService = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setNotice("");
     setActionError("");
@@ -403,48 +416,50 @@ export function SellerDashboard() {
       return;
     }
 
-    const serviceData: NewService = {
-      sellerId: CURRENT_SELLER_ID,
+    const serviceData = {
       title: draft.title.trim(),
       description: draft.description.trim(),
       category: draft.category,
       price,
       imageUrl: draft.imageUrl.trim(),
       videoUrl: draft.videoUrl.trim(),
-      status: "published",
     };
 
     try {
-      if (editingId) {
-        const updatedService = updateService(editingId, serviceData);
-        if (!updatedService) {
-          setActionError("Услуга уже удалена. Обновите список и попробуйте снова.");
-          return;
-        }
-        setNotice("Изменения услуги сохранены.");
-      } else {
-        createService(serviceData);
-        setNotice("Услуга опубликована и добавлена в каталог.");
+      const response = await fetch(editingId ? `/api/services/${editingId}` : "/api/services", {
+        method: editingId ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(serviceData),
+      });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) {
+        setActionError(result.error ?? "Не удалось сохранить услугу.");
+        return;
       }
+      setNotice(editingId ? "Изменения услуги сохранены." : "Услуга опубликована и добавлена в каталог.");
       setEditingId(null);
       setDraft(EMPTY_DRAFT);
+      window.location.reload();
     } catch (saveError) {
       setActionError(getErrorMessage(saveError));
     }
   };
 
-  const removeService = (service: Service) => {
+  const removeService = async (service: Service) => {
     if (!window.confirm(`Удалить услугу «${service.title}»? Это действие нельзя отменить.`)) return;
     setNotice("");
     setActionError("");
 
     try {
-      if (!deleteService(service.id)) {
-        setActionError("Услуга не найдена. Список уже обновлён.");
+      const response = await fetch(`/api/services/${service.id}`, { method: "DELETE" });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) {
+        setActionError(result.error ?? "Не удалось удалить услугу.");
         return;
       }
       if (editingId === service.id) cancelEditing();
       setNotice("Услуга удалена.");
+      window.location.reload();
     } catch (deleteError) {
       setActionError(getErrorMessage(deleteError));
     }
@@ -456,7 +471,7 @@ export function SellerDashboard() {
         eyebrow="ЛИЧНЫЙ КАБИНЕТ · ПРОДАВЕЦ"
         title="Творческая мастерская"
         description="Публикуйте услуги, обновляйте цены и показывайте портфолио клиентам."
-        action={<Link className="button button-dark" href={`/seller/${CURRENT_SELLER_ID}`}>Посмотреть профиль <span aria-hidden="true">↗</span></Link>}
+        action={sellerId ? <Link className="button button-dark" href={`/seller/${sellerId}`}>Посмотреть профиль <span aria-hidden="true">↗</span></Link> : undefined}
       />
       <div className={`stats-grid ${styles.sellerStats}`}>
         <article className="stat-card"><p>Опубликованные услуги</p><strong>{services === null ? "…" : publishedServices.length}</strong><span>Видны в каталоге VideoMarket</span></article>
@@ -471,7 +486,7 @@ export function SellerDashboard() {
         <div>
           <p className="eyebrow">{editingId ? "РЕДАКТИРОВАНИЕ" : "НОВАЯ ПУБЛИКАЦИЯ"}</p>
           <h2>{editingId ? "Изменить услугу" : "Создать услугу"}</h2>
-          <p className="intro-copy">Заполните карточку услуги. Она сразу появится в каталоге и сохранится в этом браузере.</p>
+          <p className="intro-copy">Заполните карточку услуги. Опубликованная услуга сразу появится в каталоге.</p>
         </div>
         <ServiceForm draft={draft} editing={editingId !== null} onChange={updateDraft} onSubmit={submitService} onCancel={cancelEditing} />
       </section>
@@ -540,10 +555,11 @@ export function SellerProfile({ sellerId }: { sellerId: string }) {
         <div className="profile-avatar">{profile?.initials ?? sellerName.slice(0, 2).toLocaleUpperCase("ru")}</div>
         <div>
           <p className="eyebrow">{profile ? `${profile.role} · ${profile.city}`.toLocaleUpperCase("ru") : "АВТОР VIDEOMARKET"}</p>
-          <h2>{sellerName} <span className="verified">✓</span></h2>
+          <h2>{publishedServices[0]?.sellerName ?? sellerName} <span className="verified">✓</span></h2>
           <p>{profile?.description ?? "Публикует услуги и делится своим портфолио на VideoMarket."}</p>
           <div className="profile-meta"><span>{publishedServices.length} опубликованных услуг</span><span>Портфолио VideoMarket</span></div>
-          <div className="hero-actions" style={{ marginTop: 18 }}><Link className="button button-dark" href="/chats/demo">Написать автору <span aria-hidden="true">↗</span></Link></div>
+          <div style={{ marginTop: 14 }}><SellerRating sellerId={sellerId} /></div>
+          <div className="hero-actions" style={{ marginTop: 18 }}><StartChatButton sellerId={sellerId} /></div>
         </div>
       </section>
       <div className="profile-content">
@@ -613,9 +629,11 @@ export function ServiceDetails({ serviceId }: { serviceId: string }) {
           <p className="eyebrow">УСЛУГА АВТОРА</p>
           <h2>{service.title}</h2>
           <p>{service.description}</p>
-          <div className="profile-meta"><span>{service.category}</span><Link href={`/seller/${service.sellerId}`}>{getSellerName(service.sellerId)}</Link></div>
+          <div className="profile-meta"><span>{service.category}</span><Link href={`/seller/${service.sellerId}`}>{service.sellerName ?? getSellerName(service.sellerId)}</Link></div>
           <div className="detail-price">{formatPrice(service.price)}</div>
-          <Link className="button button-lime" href="/chats/demo">Обсудить проект <span aria-hidden="true">↗</span></Link>
+          <CreateOrderButton serviceId={service.id} />
+          <StartChatButton sellerId={service.sellerId} className="button button-outline" />
+          <ReportButton targetType="service" targetId={service.id} />
           <Link className="button button-outline" href={`/seller/${service.sellerId}`}>Профиль автора</Link>
           <Link className={styles.serviceBackLink} href="/catalog">← Назад в каталог</Link>
         </aside>

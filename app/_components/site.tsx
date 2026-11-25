@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeaderSession } from "./header-session";
 
 const navigation = [
   { href: "/catalog", label: "Каталог" },
@@ -19,10 +20,7 @@ export function SiteHeader() {
           <Link href={item.href} key={item.href}>{item.label}</Link>
         ))}
       </nav>
-      <div className="header-actions">
-        <Link className="button button-quiet header-login" href="/login">Войти</Link>
-        <Link className="button button-dark header-register" href="/register">Стать автором <span aria-hidden="true">↗</span></Link>
-      </div>
+      <HeaderSession />
     </header>
   );
 }
