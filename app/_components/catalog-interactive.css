@@ -1,0 +1,912 @@
+.catalogControls {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(125px, 1fr)) auto;
+  align-items: end;
+  gap: 12px;
+  margin: 22px 0 34px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fcfcf9;
+}
+
+.catalogField {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+  color: #555950;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.catalogField input,
+.catalogField select,
+.catalogField textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 11px;
+  border: 1px solid #dfe1d9;
+  border-radius: 5px;
+  outline: none;
+  background: #fff;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 400;
+  transition: border-color .18s, box-shadow .18s;
+}
+
+.catalogField textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.catalogField input:focus,
+.catalogField select:focus,
+.catalogField textarea:focus {
+  border-color: #9caf60;
+  box-shadow: 0 0 0 3px #d7f36a38;
+}
+
+.catalogReset {
+  white-space: nowrap;
+}
+
+.catalogResults {
+  margin-top: 6px;
+}
+
+.catalogStatus,
+.catalogError {
+  padding: 14px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.catalogStatus {
+  background: #eef1e6;
+  color: #687051;
+}
+
+.catalogError {
+  border: 1px solid #f0c7bf;
+  background: #fff4f1;
+  color: #873a2a;
+}
+
+.catalogEmpty {
+  display: flex;
+  min-height: 170px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  border: 1px dashed #d3d5cc;
+  border-radius: 8px;
+  background: #fcfcf9;
+  text-align: center;
+}
+
+.catalogEmpty strong {
+  font-size: 16px;
+}
+
+.catalogEmpty p {
+  margin: 9px 0 17px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.serviceCardImage {
+  z-index: 0;
+  object-fit: cover;
+  transition: transform .25s;
+}
+
+.serviceArtWithImage::before,
+.serviceArtWithImage::after {
+  display: none;
+}
+
+.service-card:hover .serviceCardImage {
+  transform: scale(1.035);
+}
+
+.serviceMediaBadge {
+  position: absolute;
+  z-index: 2;
+  bottom: 14px;
+  left: 14px;
+  padding: 7px 9px;
+  border-radius: 4px;
+  background: #fffef0e8;
+  color: #42463c;
+  font-size: 9px;
+  font-weight: 650;
+}
+
+.sellerDashboard {
+  padding-bottom: 86px;
+}
+
+.sellerStats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 32px;
+}
+
+.sellerNotice {
+  margin: 12px 0;
+  padding: 12px 15px;
+  border: 1px solid #d5e5ad;
+  border-radius: 5px;
+  background: #f0f7df;
+  color: #51651e;
+  font-size: 12px;
+}
+
+.sellerManagement {
+  display: grid;
+  grid-template-columns: minmax(220px, .75fr) minmax(0, 1.5fr);
+  gap: 30px;
+  margin-top: 30px;
+  padding: 25px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fcfcf9;
+}
+
+.sellerManagement h2 {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 560;
+  letter-spacing: -.7px;
+}
+
+.sellerManagement .intro-copy {
+  font-size: 12px;
+}
+
+.sellerServiceForm {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.sellerDescriptionField {
+  grid-column: 1 / -1;
+}
+
+.sellerFormActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  grid-column: 1 / -1;
+  margin-top: 3px;
+}
+
+.sellerListSection,
+.sellerOtherLinks,
+.sellerPortfolio {
+  margin-top: 54px;
+}
+
+.sellerServiceList {
+  display: grid;
+  gap: 11px;
+}
+
+.sellerServiceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 19px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fcfcf9;
+}
+
+.sellerServiceCopy {
+  min-width: 0;
+}
+
+.sellerServiceCopy h3 {
+  margin: 9px 0 6px;
+  font-size: 15px;
+}
+
+.sellerServiceCopy h3 a:hover,
+.portfolioItem p a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sellerServiceCopy > p {
+  margin: 5px 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.sellerServiceDescription {
+  max-width: 720px;
+}
+
+.serviceStatus {
+  display: inline-block;
+  padding: 5px 7px;
+  border-radius: 3px;
+  background: #f1eee1;
+  color: #726641;
+  font-size: 9px;
+  font-weight: 650;
+}
+
+.isPublished {
+  background: #eaf2d8;
+  color: #5b7024;
+}
+
+.sellerMediaNote {
+  display: inline-block;
+  margin-top: 5px;
+  color: #6f7d42;
+  font-size: 10px;
+}
+
+.sellerServiceActions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.buttonDanger {
+  border: 1px solid #e8c9c1;
+  background: #fff8f6;
+  color: #8a4334;
+  cursor: pointer;
+}
+
+.buttonDanger:hover {
+  background: #fce9e4;
+}
+
+.sellerOtherLinks {
+  padding-top: 7px;
+}
+
+.portfolioGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.portfolioItem {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fcfcf9;
+}
+
+.portfolioItem img,
+.portfolioItem video {
+  display: block;
+  width: 100%;
+  max-height: 260px;
+  aspect-ratio: 16 / 10;
+  background: #242820;
+  object-fit: cover;
+}
+
+.portfolioItem p {
+  margin: 0;
+  padding: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.detailArtWithImage::before,
+.detailArtWithImage::after {
+  display: none;
+}
+
+.detailArtWithImage img {
+  object-fit: cover;
+}
+
+.detailArtLabel {
+  position: absolute;
+  z-index: 1;
+  bottom: 25px;
+  left: 30px;
+  color: white;
+  font-size: 21px;
+  font-weight: 750;
+  letter-spacing: 1px;
+}
+
+.serviceVideoSection h2 {
+  margin: 0 0 14px;
+  font-size: 20px;
+}
+
+.serviceDetailVideo {
+  display: block;
+  width: 100%;
+  max-height: 480px;
+  margin-bottom: 12px;
+  border-radius: 7px;
+  background: #242820;
+}
+
+.serviceBackLink {
+  display: block;
+  margin-top: 18px;
+  color: #60654f;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.serviceBackLink:hover {
+  color: #69831e;
+}
+
+@media (max-width: 1050px) {
+  .catalogControls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .catalogSearch {
+    grid-column: span 2;
+  }
+
+  .sellerManagement {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .catalogControls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 13px;
+  }
+
+  .catalogSearch {
+    grid-column: 1 / -1;
+  }
+
+  .catalogReset {
+    width: 100%;
+    grid-column: 1 / -1;
+  }
+
+  .sellerStats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sellerManagement {
+    gap: 20px;
+    padding: 17px;
+  }
+
+  .sellerServiceForm,
+  .portfolioGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sellerDescriptionField,
+  .sellerFormActions {
+    grid-column: auto;
+  }
+
+  .sellerServiceRow {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  .sellerServiceActions {
+    width: 100%;
+  }
+
+  .sellerServiceActions .button {
+    flex: 1;
+  }
+}
+
+.sellerRating-ratingButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 5px 10px;
+  border: 1px solid #e6e8df;
+  border-radius: 999px;
+  background: #fffef9;
+  color: #33372e;
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color .18s, background .18s;
+}
+
+.sellerRating-ratingButton:hover {
+  border-color: #b6cb6c;
+  background: #f7faec;
+}
+
+.sellerRating-ratingButton:focus-visible,
+.sellerRating-close:focus-visible {
+  outline: 3px solid #b6cb6c;
+  outline-offset: 2px;
+}
+
+.sellerRating-compact {
+  gap: 5px;
+  min-height: 30px;
+  padding: 3px 8px;
+  font-size: 11px;
+}
+
+.sellerRating-ratingIcon,
+.sellerRating-bigRatingIcon,
+.sellerRating-starFilled {
+  color: #bd8a10;
+}
+
+.sellerRating-ratingIcon {
+  font-size: 16px;
+}
+
+.sellerRating-ratingButton strong {
+  font-size: 13px;
+}
+
+.sellerRating-outOf {
+  color: #777b70;
+  font-size: .75em;
+  font-weight: 500;
+}
+
+.sellerRating-reviewCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #62665d;
+}
+
+.sellerRating-reviewCount svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+
+.sellerRating-stars {
+  display: inline-flex;
+  gap: 1px;
+  white-space: nowrap;
+}
+
+.sellerRating-starEmpty {
+  color: #d7d9d0;
+}
+
+.sellerRating-starHalf {
+  color: transparent;
+  background: linear-gradient(90deg, #bd8a10 50%, #d7d9d0 50%);
+  background-clip: text;
+}
+
+.sellerRating-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: #1e221999;
+}
+
+.sellerRating-modal {
+  position: relative;
+  width: min(620px, 100%);
+  max-height: 86vh;
+  overflow: auto;
+  padding: 30px;
+  border: 1px solid #e7e8df;
+  border-radius: 14px;
+  background: #fffef9;
+  color: #30342d;
+  box-shadow: 0 24px 70px #17191255;
+}
+
+.sellerRating-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid #e5e6de;
+  border-radius: 50%;
+  background: white;
+  color: #41453b;
+  font-size: 23px;
+  cursor: pointer;
+}
+
+.sellerRating-eyebrow {
+  margin: 0 0 7px;
+  color: #62665d;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+.sellerRating-modal h2 {
+  margin: 0;
+  color: #282c25;
+  font-size: 25px;
+  font-weight: 650;
+  letter-spacing: -.4px;
+}
+
+.sellerRating-overall {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 19px 0 25px;
+  padding: 17px 19px;
+  border: 1px solid #e8e9df;
+  border-radius: 10px;
+  background: #f8f9f2;
+}
+
+.sellerRating-overallScore {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  padding-right: 20px;
+  border-right: 1px solid #dfe1d7;
+  white-space: nowrap;
+}
+
+.sellerRating-bigRatingIcon {
+  font-size: 22px;
+}
+
+.sellerRating-overallScore strong {
+  color: #2e3329;
+  font-size: 32px;
+  line-height: 1;
+}
+
+.sellerRating-overallScore > span:last-child {
+  color: #62665d;
+  font-size: 12px;
+}
+
+.sellerRating-count {
+  margin: 6px 0 0;
+  color: #555950;
+  font-size: 12px;
+}
+
+.sellerRating-status,
+.sellerRating-error {
+  margin: 12px 0;
+  padding: 13px 15px;
+  border-radius: 7px;
+  font-size: 13px;
+}
+
+.sellerRating-status {
+  background: #f2f4eb;
+  color: #555a4d;
+}
+
+.sellerRating-error {
+  background: #fff1ed;
+  color: #943d2d;
+}
+
+.sellerRating-categories h3,
+.sellerRating-reviews h3 {
+  margin: 0 0 11px;
+  color: #353930;
+  font-size: 15px;
+}
+
+.sellerRating-categories {
+  display: grid;
+  gap: 8px;
+}
+
+.sellerRating-category {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px 13px;
+  padding: 11px 13px;
+  border: 1px solid #e8e9e1;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+}
+
+.sellerRating-category strong {
+  color: #363a31;
+  font-size: 13px;
+}
+
+.sellerRating-category small {
+  grid-column: 1 / -1;
+  color: #62665d;
+  font-size: 11px;
+}
+
+.sellerRating-empty {
+  margin: 0;
+  padding: 13px 15px;
+  border-radius: 7px;
+  background: #f5f6ef;
+  color: #555950;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.sellerRating-reviews {
+  margin-top: 24px;
+}
+
+.sellerRating-review {
+  padding: 15px 0;
+  border-top: 1px solid #e8e9e1;
+}
+
+.sellerRating-reviewHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sellerRating-avatar {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  border-radius: 50%;
+  background: #eaf0d4;
+  color: #52642b;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.sellerRating-reviewer {
+  display: grid;
+  gap: 3px;
+}
+
+.sellerRating-reviewer strong {
+  color: #34382f;
+  font-size: 13px;
+}
+
+.sellerRating-reviewer small {
+  color: #62665d;
+  font-size: 11px;
+}
+
+.sellerRating-categoryTag {
+  margin-left: auto;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #f0f2e9;
+  color: #555950;
+  font-size: 11px;
+}
+
+.sellerRating-reviewRating {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 11px 0 5px 46px;
+}
+
+.sellerRating-reviewRating strong {
+  color: #55594f;
+  font-size: 11px;
+}
+
+.sellerRating-review > p {
+  margin: 0 0 0 46px;
+  color: #3e4239;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.reviewForm-form {
+  display: grid;
+  gap: 11px;
+  max-width: 430px;
+  margin: 18px 0;
+  padding: 18px;
+  border: 1px solid #e6e8df;
+  border-radius: 9px;
+  background: #fffef9;
+}
+
+.reviewForm-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: #33372e;
+  font-size: 16px;
+}
+
+.reviewForm-title span {
+  color: #bd8a10;
+  font-size: 19px;
+}
+
+.reviewForm-hint {
+  margin: -5px 0 2px;
+  color: #555950;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.reviewForm-ratingField {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.reviewForm-ratingField legend {
+  margin-bottom: 8px;
+  color: #41453b;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.reviewForm-ratingChoices {
+  display: flex;
+  gap: 7px;
+}
+
+.reviewForm-ratingChoice {
+  display: grid;
+  width: 42px;
+  height: 45px;
+  place-items: center;
+  gap: 0;
+  padding: 4px;
+  border: 1px solid #e1e3d9;
+  border-radius: 7px;
+  background: #fff;
+  color: #9a9d94;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s, transform .15s;
+}
+
+.reviewForm-ratingChoice span {
+  font-size: 19px;
+  line-height: 1;
+}
+
+.reviewForm-ratingChoice small {
+  color: #555950;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.reviewForm-ratingChoice:hover,
+.reviewForm-selected {
+  border-color: #bd8a10;
+  background: #fff8df;
+  color: #bd8a10;
+}
+
+.reviewForm-selected {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px #bd8a1026;
+}
+
+.reviewForm-ratingChoice:focus-visible {
+  outline: 3px solid #d5e59d;
+  outline-offset: 2px;
+}
+
+.reviewForm-ratingHelp {
+  color: #555950;
+  font-size: 11px;
+}
+
+.reviewForm-commentField {
+  position: relative;
+}
+
+.reviewForm-commentField > span small {
+  color: #62665d;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.reviewForm-commentField textarea {
+  padding-bottom: 27px;
+}
+
+.reviewForm-charCount {
+  position: absolute;
+  right: 9px;
+  bottom: 8px;
+  color: #62665d;
+  font-size: 10px;
+}
+
+@media (max-width: 520px) {
+  .sellerRating-modal {
+    padding: 24px 18px;
+  }
+
+  .sellerRating-overall {
+    gap: 13px;
+    padding: 14px;
+  }
+
+  .sellerRating-overallScore {
+    gap: 3px;
+    padding-right: 13px;
+  }
+
+  .sellerRating-overallScore strong {
+    font-size: 28px;
+  }
+
+  .sellerRating-category {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .sellerRating-category > .sellerRating-stars {
+    grid-row: 2;
+  }
+
+  .sellerRating-category small {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: right;
+  }
+
+  .sellerRating-categoryTag {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 420px) {
+  .reviewForm-form {
+    padding: 14px;
+  }
+
+  .reviewForm-ratingChoices {
+    gap: 5px;
+  }
+
+  .reviewForm-ratingChoice {
+    width: 39px;
+  }
+}

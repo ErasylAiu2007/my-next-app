@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(cuid())
+  name           String
+  email          String          @unique
+  passwordHash   String
+  role           String          @default("buyer")
+  blocked        Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  services       Service[]
+  buyerOrders    Order[]         @relation("BuyerOrders")
+  sellerOrders   Order[]         @relation("SellerOrders")
+  reports        Report[]
+  sessions       Session[]
+  moderationLogs ModerationLog[]
+  reviewsGiven   Review[]        @relation("BuyerReviews")
+  reviewsReceived Review[]       @relation("SellerReviews")
+  buyerChats     Chat[]          @relation("BuyerChats")
+  sellerChats    Chat[]          @relation("SellerChats")
+  sentMessages   ChatMessage[]   @relation("SentChatMessages")
+  receivedMessages ChatMessage[] @relation("ReceivedChatMessages")
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  sellerId    String
+  seller      User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  price       Int
+  category    String
+  imageUrl    String   @default("")
+  videoUrl    String   @default("")
+  status      String   @default("published")
+  createdAt   DateTime @default(now())
+  orders      Order[]
+
+  @@index([sellerId, status])
+  @@index([createdAt])
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  buyerId     String
+  buyer       User        @relation("BuyerOrders", fields: [buyerId], references: [id])
+  sellerId    String
+  seller      User        @relation("SellerOrders", fields: [sellerId], references: [id])
+  serviceId   String?
+  service     Service?    @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  serviceTitle String
+  status      String      @default("pending")
+  price       Int
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([buyerId, createdAt])
+  @@index([sellerId, createdAt])
+  @@index([status, createdAt])
+}
+
+model Report {
+  id          String       @id @default(cuid())
+  reporterId  String
+  reporter    User         @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  targetType  String
+  targetId    String
+  reason      String
+  description String       @default("")
+  status      String       @default("pending")
+  adminNotes  String       @default("")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@unique([reporterId, targetType, targetId])
+  @@index([status, createdAt])
+  @@index([targetType, targetId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  orderId   String   @unique
+  buyerId   String
+  sellerId  String
+  buyer     User     @relation("BuyerReviews", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller    User     @relation("SellerReviews", fields: [sellerId], references: [id], onDelete: Cascade)
+  category  String
+  rating    Int
+  comment   String   @default("")
+  hidden    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([sellerId, hidden, createdAt])
+  @@index([buyerId, createdAt])
+}
+
+model Chat {
+  id        String        @id @default(cuid())
+  buyerId   String
+  sellerId  String
+  buyer     User          @relation("BuyerChats", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller    User          @relation("SellerChats", fields: [sellerId], references: [id], onDelete: Cascade)
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([buyerId, sellerId])
+  @@index([updatedAt])
+}
+
+model ChatMessage {
+  id          String   @id @default(cuid())
+  chatId      String
+  senderId    String
+  recipientId String
+  body        String
+  readAt      DateTime?
+  createdAt   DateTime @default(now())
+  chat        Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender      User     @relation("SentChatMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient   User     @relation("ReceivedChatMessages", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([chatId, createdAt])
+  @@index([recipientId, readAt, createdAt])
+}
+
+model ModerationLog {
+  id         String   @id @default(cuid())
+  adminId    String
+  admin      User     @relation(fields: [adminId], references: [id])
+  action     String
+  targetType String
+  targetId   String
+  details    String   @default("")
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([targetType, targetId])
+}
