@@ -1,5 +1,5 @@
 import "server-only";
-import { createHash, randomBytes, scrypt as nodeScrypt, timingSafeEqual } from "node:crypto";
+import { createHash, randomBytes, randomUUID, scrypt as nodeScrypt, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -59,6 +59,10 @@ export async function deleteSession(token: string | undefined): Promise<void> {
   }
 }
 
+export async function recordAnalyticsEvent(userId: string, eventType: "login" | "activity"): Promise<void> {
+  await db.$executeRaw`INSERT INTO "AnalyticsEvent" ("id", "userId", "eventType") VALUES (${randomUUID()}, ${userId}, ${eventType})`;
+}
+
 export async function getCurrentUser(): Promise<SafeUser | null> {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token) return null;
@@ -68,6 +72,14 @@ export async function getCurrentUser(): Promise<SafeUser | null> {
     include: { user: true },
   });
   if (!session || session.expiresAt <= new Date() || session.user.blocked) return null;
+
+  const [recentActivity] = await db.$queryRaw<Array<{ createdAt: Date | string }>>`
+    SELECT strftime('%Y-%m-%dT%H:%M:%fZ', "createdAt") AS "createdAt"
+    FROM "AnalyticsEvent" WHERE "userId" = ${session.userId} ORDER BY "createdAt" DESC LIMIT 1
+  `;
+  if (!recentActivity || Date.now() - new Date(recentActivity.createdAt).getTime() >= 5 * 60 * 1000) {
+    await recordAnalyticsEvent(session.userId, "activity");
+  }
 
   const { id, name, email, role, blocked, createdAt } = session.user;
   return { id, name, email, role, blocked, createdAt };

@@ -27,6 +27,7 @@ model User {
   sellerChats    Chat[]          @relation("SellerChats")
   sentMessages   ChatMessage[]   @relation("SentChatMessages")
   receivedMessages ChatMessage[] @relation("ReceivedChatMessages")
+  analyticsEvents AnalyticsEvent[]
 }
 
 model Service {
@@ -155,4 +156,20 @@ model ModerationLog {
 
   @@index([createdAt])
   @@index([targetType, targetId])
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventType String
+  createdAt DateTime @default(now())
+
+  @@index([eventType, createdAt])
+  @@index([userId, createdAt])
+}
+
+model AnalyticsTracking {
+  id        String   @id
+  startedAt DateTime @default(now())
 }

@@ -64,7 +64,7 @@ export function AdminResource({ resource }: { resource: Resource }) {
     if (reason) params.set("reason", reason);
     if (category) params.set("category", category);
     if (hidden) params.set("hidden", hidden);
-    if (sort === "oldest") params.set("sort", sort);
+    if (sort !== "newest") params.set("sort", sort);
     if (from) params.set("from", from);
     if (to) params.set("to", to);
     try {
@@ -112,20 +112,43 @@ export function AdminResource({ resource }: { resource: Resource }) {
   function filters() {
     return <div className="admin-filters">
       <label className="catalogField"><span>Поиск</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Поиск по списку" /></label>
-      {resource === "users" ? <label className="catalogField"><span>Роль</span><select value={role} onChange={(event) => setRole(event.target.value)}><option value="">Все роли</option>{Object.entries(roles).map(([key, label]) => <option value={key} key={key}>{label}</option>)}</select></label> : null}
+      {resource === "users" ? <>
+        <label className="catalogField"><span>Роль</span><select value={role} onChange={(event) => setRole(event.target.value)}><option value="">Все роли</option>{Object.entries(roles).map(([key, label]) => <option value={key} key={key}>{label}</option>)}</select></label>
+        <label className="catalogField"><span>Сортировка</span><select value={sort} onChange={(event) => setSort(event.target.value)}>
+          <option value="name-asc">Имя: А–Я</option><option value="name-desc">Имя: Я–А</option><option value="role">По роли</option>
+          <option value="newest">Регистрация: новые</option><option value="oldest">Регистрация: старые</option>
+          <option value="age-oldest">Аккаунт старше</option><option value="age-newest">Аккаунт новее</option>
+          <option value="active-newest">Активность: недавняя</option><option value="active-oldest">Активность: давняя</option>
+        </select></label>
+      </> : null}
       {resource === "services" ? <>
         <label className="catalogField"><span>Категория</span><select value={category} onChange={(event) => setCategory(event.target.value)}><option value="">Все категории</option>{categories.map((value) => <option value={value} key={value}>{value}</option>)}</select></label>
         <label className="catalogField"><span>Статус</span><select value={status} onChange={(event) => setStatus(event.target.value)}><option value="">Все статусы</option><option value="published">Опубликована</option><option value="hidden">Скрыта</option><option value="draft">Черновик</option></select></label>
+        <label className="catalogField"><span>Сортировка</span><select value={sort} onChange={(event) => setSort(event.target.value)}>
+          <option value="newest">Созданы: новые</option><option value="oldest">Созданы: старые</option><option value="name-asc">Название: А–Я</option><option value="name-desc">Название: Я–А</option>
+          <option value="price-high">Цена: сначала выше</option><option value="price-low">Цена: сначала ниже</option><option value="rating-high">Рейтинг: сначала выше</option><option value="rating-low">Рейтинг: сначала ниже</option>
+        </select></label>
       </> : null}
       {resource === "orders" ? <label className="catalogField"><span>Статус</span><select value={status} onChange={(event) => setStatus(event.target.value)}><option value="">Все статусы</option>{Object.entries(orderStatuses).map(([key, label]) => <option value={key} key={key}>{label}</option>)}</select></label> : null}
-      {resource === "orders" ? <label className="catalogField"><span>Сортировка</span><select value={sort} onChange={(event) => setSort(event.target.value)}><option value="newest">Сначала новые</option><option value="oldest">Сначала старые</option></select></label> : null}
-      {resource === "reviews" ? <label className="catalogField"><span>Статус</span><select value={hidden} onChange={(event) => setHidden(event.target.value)}><option value="">Все отзывы</option><option value="visible">Видимые</option><option value="hidden">Скрытые</option></select></label> : null}
+      {resource === "orders" ? <label className="catalogField"><span>Сортировка</span><select value={sort} onChange={(event) => setSort(event.target.value)}>
+        <option value="newest">Дата: новые</option><option value="oldest">Дата: старые</option><option value="price-high">Цена: выше</option><option value="price-low">Цена: ниже</option>
+        <option value="status">По статусу</option><option value="buyer-asc">Покупатель: А–Я</option><option value="buyer-desc">Покупатель: Я–А</option>
+      </select></label> : null}
+      {resource === "reviews" ? <>
+        <label className="catalogField"><span>Статус</span><select value={hidden} onChange={(event) => setHidden(event.target.value)}><option value="">Все отзывы</option><option value="visible">Видимые</option><option value="hidden">Скрытые</option></select></label>
+        <label className="catalogField"><span>Сортировка</span><select value={sort} onChange={(event) => setSort(event.target.value)}><option value="newest">Дата: новые</option><option value="oldest">Дата: старые</option><option value="rating-high">Оценка: выше</option><option value="rating-low">Оценка: ниже</option><option value="buyer-asc">Покупатель: А–Я</option><option value="buyer-desc">Покупатель: Я–А</option></select></label>
+      </> : null}
       {resource === "reports" ? <>
         <label className="catalogField"><span>Статус</span><select value={status} onChange={(event) => setStatus(event.target.value)}><option value="">Все статусы</option>{Object.entries(reportStatuses).map(([key, label]) => <option value={key} key={key}>{label}</option>)}</select></label>
         <label className="catalogField"><span>Тип объекта</span><select value={targetType} onChange={(event) => setTargetType(event.target.value)}><option value="">Все типы</option><option value="service">Услуга</option><option value="order">Заказ</option></select></label>
         <label className="catalogField"><span>Причина</span><select value={reason} onChange={(event) => setReason(event.target.value)}><option value="">Все причины</option>{reportReasons.map((value) => <option value={value} key={value}>{value}</option>)}</select></label>
+        <label className="catalogField"><span>Сортировка</span><select value={sort} onChange={(event) => setSort(event.target.value)}><option value="newest">Дата: новые</option><option value="oldest">Дата: старые</option><option value="status">По статусу</option><option value="reason">По причине</option></select></label>
       </> : null}
+      {resource === "audit" ? <label className="catalogField"><span>Сортировка</span><select value={sort} onChange={(event) => setSort(event.target.value)}><option value="newest">Дата: новые</option><option value="oldest">Дата: старые</option><option value="action">Действие: А–Я</option><option value="admin">Администратор: А–Я</option></select></label> : null}
       {resource !== "audit" ? <><label className="catalogField"><span>С даты</span><input type="date" value={from} onChange={(event) => setFrom(event.target.value)} /></label><label className="catalogField"><span>По дату</span><input type="date" value={to} onChange={(event) => setTo(event.target.value)} /></label></> : null}
+      <button className="button button-outline admin-filter-reset" type="button" onClick={() => {
+        setQuery(""); setRole(""); setStatus(""); setTargetType(""); setReason(""); setCategory(""); setHidden(""); setSort("newest"); setFrom(""); setTo("");
+      }}>Сбросить</button>
     </div>;
   }
 
@@ -158,16 +181,16 @@ export function AdminResource({ resource }: { resource: Resource }) {
     {notice ? <p className="form-success" role="status">{notice}</p> : null}
     {!loading && rows.length === 0 && !error ? <div className="catalogEmpty"><strong>Ничего не найдено</strong><p>Попробуйте изменить фильтры.</p></div> : null}
     <div className="admin-table-wrap"><table className="admin-table">
-      <thead><tr>{resource === "users" ? <><th>Пользователь</th><th>Роль</th><th>Статус</th><th>Регистрация</th><th>Действия</th></> : null}
-        {resource === "services" ? <><th>Услуга</th><th>Продавец</th><th>Категория / цена</th><th>Дата</th><th>Статус / действия</th></> : null}
+      <thead><tr>      {resource === "users" ? <><th>Пользователь</th><th>Роль</th><th>Статус</th><th>Регистрация</th><th>Последняя активность</th><th>Действия</th></> : null}
+        {resource === "services" ? <><th>Услуга</th><th>Продавец</th><th>Категория / цена</th><th>Дата</th><th>Рейтинг</th><th>Статус / действия</th></> : null}
         {resource === "orders" ? <><th>Заказ</th><th>Участники</th><th>Сумма</th><th>Статус / дата</th><th>Действия</th></> : null}
         {resource === "reports" ? <><th>ID / дата</th><th>Автор жалобы</th><th>Объект / тип</th><th>Причина / статус</th><th>Описание и действия</th></> : null}
         {resource === "reviews" ? <><th>Покупатель</th><th>Продавец</th><th>Категория / оценка</th><th>Отзыв</th><th>Действия</th></> : null}
         {resource === "audit" ? <><th>Дата</th><th>Администратор</th><th>Действие</th><th>Объект</th><th>Подробности</th></> : null}
       </tr></thead>
       <tbody>{rows.map((row) => <tr key={text(row.id)}>
-        {resource === "users" ? <><td><strong>{text(row.name)}</strong><small>{text(row.email)}</small></td><td>{roles[text(row.role)] ?? text(row.role)}</td><td>{row.blocked ? "Заблокирован" : "Активен"}</td><td>{date(row.createdAt)}</td><td>{rowActions(row)}</td></> : null}
-        {resource === "services" ? <><td><strong>{text(row.title)}</strong><small>{text(row.id)}</small></td><td>{nested(row, "seller", "name")}<small>{nested(row, "seller", "email")}</small></td><td>{text(row.category)} · {new Intl.NumberFormat("ru-KZ").format(Number(row.price))} ₸</td><td>{date(row.createdAt)}</td><td>{rowActions(row)}</td></> : null}
+        {resource === "users" ? <><td><strong>{text(row.name)}</strong><small>{text(row.email)}</small></td><td>{roles[text(row.role)] ?? text(row.role)}</td><td>{row.blocked ? "Заблокирован" : "Активен"}</td><td>{date(row.createdAt)}</td><td>{date(row.lastActivityAt)}</td><td>{rowActions(row)}</td></> : null}
+        {resource === "services" ? <><td><strong>{text(row.title)}</strong><small>{text(row.id)}</small></td><td>{nested(row, "seller", "name")}<small>{nested(row, "seller", "email")}</small></td><td>{text(row.category)} · {new Intl.NumberFormat("ru-KZ").format(Number(row.price))} ₸</td><td>{date(row.createdAt)}</td><td>{row.rating === null || row.rating === undefined ? "Нет оценок" : `${Number(row.rating).toFixed(1)} ★`}</td><td>{rowActions(row)}</td></> : null}
         {resource === "orders" ? <><td><strong>{text(row.serviceTitle)}</strong><small>{text(row.id)}</small></td><td>{nested(row, "buyer", "name")} → {nested(row, "seller", "name")}</td><td>{new Intl.NumberFormat("ru-KZ").format(Number(row.price))} ₸</td><td>{orderStatuses[text(row.status)] ?? text(row.status)}<small>{date(row.createdAt)}</small></td><td>{rowActions(row)}</td></> : null}
         {resource === "reports" ? <><td>{text(row.id)}<small>{date(row.createdAt)}</small></td><td>{nested(row, "reporter", "name")}<small>{nested(row, "reporter", "email")}</small></td><td>{row.targetType === "service" ? nested(row, "target", "title") : nested(row, "target", "serviceTitle")}<small>{row.targetType === "service" ? "Услуга" : "Заказ"} · {nested(row, "target", "status")}</small><Link className="text-link" href={row.targetType === "service" ? `/service/${text(row.targetId)}` : `/orders/${text(row.targetId)}`}>Открыть объект ↗</Link></td><td>{text(row.reason)}<small>{reportStatuses[text(row.status)] ?? text(row.status)}</small></td><td><details><summary>Детали и действия</summary><p>{text(row.description) || "Описание не добавлено."}</p><p>{row.targetType === "service" ? `Продавец: ${nestedValue(isRow(row.target) ? row.target.seller : null, "name")}` : `Покупатель: ${nestedValue(isRow(row.target) ? row.target.buyer : null, "name")} · Продавец: ${nestedValue(isRow(row.target) ? row.target.seller : null, "name")}`}</p><ReportNotes row={row} onMutate={mutate} />{rowActions(row)}</details></td></> : null}
         {resource === "reviews" ? <><td>{nested(row, "buyer", "name")}<small>{nested(row, "buyer", "email")}</small></td><td>{nested(row, "seller", "name")}<small>{nested(row, "seller", "email")}</small></td><td>{text(row.category)}<small>{text(row.rating)} ★ · {row.hidden ? "Скрыт" : "Виден"}</small></td><td>{text(row.comment) || "Без комментария."}<small>{date(row.createdAt)}</small></td><td>{rowActions(row)}</td></> : null}
