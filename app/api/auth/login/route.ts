@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createSession, sessionCookieName, sessionCookieOptions, verifyPassword } from "@/lib/auth";
+import { createSession, recordAnalyticsEvent, sessionCookieName, sessionCookieOptions, verifyPassword } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { isRecord, isSameOrigin, jsonError } from "@/lib/http";
 
@@ -22,6 +22,7 @@ export async function POST(request: Request) {
   if (user.blocked) return jsonError("Аккаунт заблокирован. Обратитесь в службу поддержки.", 403);
 
   const token = await createSession(user.id);
+  await recordAnalyticsEvent(user.id, "login");
   const response = NextResponse.json({
     user: { id: user.id, name: user.name, email: user.email, role: user.role },
   });

@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
-import { createSession, hashPassword, sessionCookieName, sessionCookieOptions } from "@/lib/auth";
+import { createSession, hashPassword, recordAnalyticsEvent, sessionCookieName, sessionCookieOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { isRecord, isSameOrigin, jsonError } from "@/lib/http";
 
@@ -40,6 +40,7 @@ export async function POST(request: Request) {
     throw error;
   }
   const token = await createSession(user.id);
+  await recordAnalyticsEvent(user.id, "activity");
   const response = NextResponse.json({ user }, { status: 201 });
   response.cookies.set(sessionCookieName, token, sessionCookieOptions());
   return response;

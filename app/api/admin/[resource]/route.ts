@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { isRecord, isSameOrigin, jsonError } from "@/lib/http";
@@ -6,6 +7,7 @@ type RouteContext = { params: Promise<{ resource: string }> };
 const roles = ["buyer", "seller", "admin"] as const;
 const reportStatuses = ["pending", "under_review", "resolved", "rejected"] as const;
 const orderStatuses = ["pending", "accepted", "in_progress", "completed", "cancelled"] as const;
+const roleOrder: Record<string, number> = { admin: 0, seller: 1, buyer: 2 };
 
 async function adminForApi() {
   const user = await getCurrentUser();
@@ -25,6 +27,7 @@ export async function GET(request: Request, { params }: RouteContext) {
   const category = url.searchParams.get("category");
   const from = url.searchParams.get("from");
   const to = url.searchParams.get("to");
+  const sort = url.searchParams.get("sort") ?? "newest";
   const validFrom = from && /^\d{4}-\d{2}-\d{2}$/.test(from) ? from : null;
   const validTo = to && /^\d{4}-\d{2}-\d{2}$/.test(to) ? to : null;
   const dateFilter = validFrom || validTo ? {
@@ -58,7 +61,25 @@ export async function GET(request: Request, { params }: RouteContext) {
       orderBy: { createdAt: "desc" },
       take: 200,
     });
-    return Response.json(users);
+    const activities = users.length ? await db.$queryRaw<Array<{ userId: string; createdAt: Date | string }>>`
+      SELECT "userId", strftime('%Y-%m-%dT%H:%M:%fZ', MAX("createdAt")) AS "createdAt"
+      FROM "AnalyticsEvent" WHERE "userId" IN (${Prisma.join(users.map((user) => user.id))}) GROUP BY "userId"
+    ` : [];
+    const lastActivity = new Map(activities.map((event) => [event.userId, new Date(event.createdAt).getTime()]));
+    const sortedUsers = [...users].sort((a, b) => {
+      if (sort === "name-asc" || sort === "name-desc") return a.name.localeCompare(b.name, "ru") * (sort === "name-asc" ? 1 : -1);
+      if (sort === "role") return (roleOrder[a.role] ?? 9) - (roleOrder[b.role] ?? 9) || a.name.localeCompare(b.name, "ru");
+      if (sort === "active-newest" || sort === "active-oldest") {
+        const direction = sort === "active-newest" ? -1 : 1;
+        return ((lastActivity.get(a.id) ?? 0) - (lastActivity.get(b.id) ?? 0)) * direction;
+      }
+      const direction = sort === "oldest" || sort === "age-oldest" || sort === "registration-oldest" ? 1 : -1;
+      return (a.createdAt.getTime() - b.createdAt.getTime()) * direction;
+    }).map((user) => ({
+      ...user,
+      lastActivityAt: lastActivity.has(user.id) ? new Date(lastActivity.get(user.id)!) : null,
+    }));
+    return Response.json(sortedUsers);
   }
   if (resource === "services") {
     const services = await db.service.findMany({
@@ -72,7 +93,33 @@ export async function GET(request: Request, { params }: RouteContext) {
       orderBy: { createdAt: "desc" },
       take: 200,
     });
-    return Response.json(services);
+    const serviceOrders = services.length ? await db.order.findMany({
+      where: { serviceId: { in: services.map((service) => service.id) } },
+      select: { id: true, serviceId: true },
+    }) : [];
+    const reviews = serviceOrders.length ? await db.review.findMany({
+      where: { hidden: false, orderId: { in: serviceOrders.map((order) => order.id) } },
+      select: { orderId: true, rating: true },
+    }) : [];
+    const serviceByOrder = new Map(serviceOrders.map((order) => [order.id, order.serviceId]));
+    const ratings = new Map<string, { total: number; count: number }>();
+    for (const review of reviews) {
+      const serviceId = serviceByOrder.get(review.orderId);
+      if (!serviceId) continue;
+      const current = ratings.get(serviceId) ?? { total: 0, count: 0 };
+      ratings.set(serviceId, { total: current.total + review.rating, count: current.count + 1 });
+    }
+    const ratedServices = services.map((service) => ({
+      ...service,
+      rating: ratings.has(service.id) ? ratings.get(service.id)!.total / ratings.get(service.id)!.count : null,
+    }));
+    const sortedServices = [...ratedServices].sort((a, b) => {
+      if (sort === "name-asc" || sort === "name-desc") return a.title.localeCompare(b.title, "ru") * (sort === "name-asc" ? 1 : -1);
+      if (sort === "price-high" || sort === "price-low") return (a.price - b.price) * (sort === "price-high" ? -1 : 1);
+      if (sort === "rating-high" || sort === "rating-low") return ((a.rating ?? -1) - (b.rating ?? -1)) * (sort === "rating-high" ? -1 : 1);
+      return (a.createdAt.getTime() - b.createdAt.getTime()) * (sort === "oldest" ? 1 : -1);
+    });
+    return Response.json(sortedServices);
   }
   if (resource === "orders") {
     const orders = await db.order.findMany({
@@ -92,10 +139,19 @@ export async function GET(request: Request, { params }: RouteContext) {
         buyer: { select: { id: true, name: true, email: true } },
         seller: { select: { id: true, name: true, email: true } },
       },
-      orderBy: { createdAt: url.searchParams.get("sort") === "oldest" ? "asc" : "desc" },
+      orderBy: { createdAt: "desc" },
       take: 200,
     });
-    return Response.json(orders);
+    const statusRank: Record<string, number> = { pending: 0, accepted: 1, in_progress: 2, completed: 3, cancelled: 4 };
+    const sortedOrders = [...orders].sort((a, b) => {
+      if (sort === "price-high" || sort === "price-low") return (a.price - b.price) * (sort === "price-high" ? -1 : 1);
+      if (sort === "status") return (statusRank[a.status] ?? 9) - (statusRank[b.status] ?? 9);
+      if (sort === "buyer-asc" || sort === "buyer-desc") {
+        return a.buyer.name.localeCompare(b.buyer.name, "ru") * (sort === "buyer-asc" ? 1 : -1);
+      }
+      return (a.createdAt.getTime() - b.createdAt.getTime()) * (sort === "oldest" ? 1 : -1);
+    });
+    return Response.json(sortedOrders);
   }
   if (resource === "reports") {
     const reports = await db.report.findMany({
@@ -110,7 +166,12 @@ export async function GET(request: Request, { params }: RouteContext) {
       orderBy: { createdAt: "desc" },
       take: 300,
     });
-    const withTargets = await Promise.all(reports.map(async (report) => {
+    const sortedReports = [...reports].sort((a, b) => {
+      if (sort === "status") return a.status.localeCompare(b.status, "ru");
+      if (sort === "reason") return a.reason.localeCompare(b.reason, "ru");
+      return (a.createdAt.getTime() - b.createdAt.getTime()) * (sort === "oldest" ? 1 : -1);
+    });
+    const withTargets = await Promise.all(sortedReports.map(async (report) => {
       const target = report.targetType === "service"
         ? await db.service.findUnique({
           where: { id: report.targetId },
@@ -145,14 +206,32 @@ export async function GET(request: Request, { params }: RouteContext) {
       },
       orderBy: { createdAt: "desc" }, take: 300,
     });
-    return Response.json(reviews);
+    const sortedReviews = [...reviews].sort((a, b) => {
+      if (sort === "rating-high" || sort === "rating-low") return (a.rating - b.rating) * (sort === "rating-high" ? -1 : 1);
+      if (sort === "buyer-asc" || sort === "buyer-desc") return a.buyer.name.localeCompare(b.buyer.name, "ru") * (sort === "buyer-asc" ? 1 : -1);
+      return (a.createdAt.getTime() - b.createdAt.getTime()) * (sort === "oldest" ? 1 : -1);
+    });
+    return Response.json(sortedReviews);
   }
   if (resource === "audit") {
-    return Response.json(await db.moderationLog.findMany({
+    const logs = await db.moderationLog.findMany({
+      where: query ? { OR: [
+        { action: { contains: query } },
+        { targetType: { contains: query } },
+        { targetId: { contains: query } },
+        { details: { contains: query } },
+        { admin: { name: { contains: query } } },
+      ] } : {},
       include: { admin: { select: { name: true, email: true } } },
       orderBy: { createdAt: "desc" },
       take: 300,
-    }));
+    });
+    const sortedLogs = [...logs].sort((a, b) => {
+      if (sort === "action") return a.action.localeCompare(b.action, "ru");
+      if (sort === "admin") return a.admin.name.localeCompare(b.admin.name, "ru");
+      return (a.createdAt.getTime() - b.createdAt.getTime()) * (sort === "oldest" ? 1 : -1);
+    });
+    return Response.json(sortedLogs);
   }
   return jsonError("Раздел не найден.", 404);
 }
